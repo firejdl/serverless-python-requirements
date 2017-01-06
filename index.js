@@ -34,14 +34,10 @@ class ServerlessPythonRequirements {
       ];
       if (this.serverless.service.custom &&
           this.serverless.service.custom.dockerizePip) {
-        cmd = 'docker';
-        options = [
-          'run', '--rm',
-          '-v', `${this.serverless.config.servicePath}:/var/task:z`,
-          'lambci/lambda:build-python2.7', 'pip',
-        ].concat(options);
+        cmd = `docker run --rm -v ${this.serverless.config.servicePath}:/var/task:z lambci/lambda:build-python2.7 bash -c "pip install --upgrade pip && ${cmd} ${options.join(' ')}"`;
+        options = [];
       }
-      const res = child_process.spawnSync(cmd, options);
+      const res = child_process.spawnSync(cmd, options, {shell: true});
       if (res.error) {
         return reject(res.error);
       }
